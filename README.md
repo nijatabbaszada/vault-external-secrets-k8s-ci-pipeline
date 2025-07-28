@@ -39,8 +39,8 @@ To access the Vault Web UI, you have two options:
 
 1. **Port-forward (quick local access):**
 
-   ```bash
-   kubectl -n vault-secondary port-forward svc/secondary-vault --address 0.0.0.0 8200:8200
+```bash
+kubectl -n vault-secondary port-forward svc/secondary-vault --address 0.0.0.0 8200:8200
 ```
 
 2. **Creating ingress:**
@@ -68,13 +68,64 @@ spec:
               number: 8200
 ```
 
+# Installing External Secrets Operator (ESO) on Kubernetes with Helm
 
+This guide explains how to install the **External Secrets Operator (ESO)** on Kubernetes, which enables automatic syncing of secrets from providers like **HashiCorp Vault** into Kubernetes secrets.
 
-1. Configure **Vault** Kubernetes auth and create a policy to allow secret reads for ESO.
-2. Deploy **External Secrets Operator (ESO)** and a `ClusterSecretStore` pointing to Vault.
-3. Push application code to GitLab and trigger the CI/CD pipeline:
-   - Build → Image → Deploy stages.
-4. Verify deployment:
+---
+
+## 1. Prerequisites
+
+- A running Kubernetes cluster (v1.20+)
+- `kubectl` and `helm` installed and configured
+- Access to a secret provider (e.g., HashiCorp Vault)
+
+---
+
+## 2. Add the External Secrets Helm Repository
+
 ```bash
-kubectl get pods -n my-app
-kubectl get secrets -n my-app
+helm repo add external-secrets https://charts.external-secrets.io
+helm repo update
+kubectl create namespace external-secrets
+helm install external-secrets external-secrets/external-secrets -n external-secrets --create-namespace
+kubectl get pods -n external-secrets
+kubectl get all -n external-secrets
+
+### Create Cluster Secret Store
+
+```bash
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: vault-backend-my-app
+spec:
+  conditions:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: my-app
+  provider:
+    vault:
+      server: http://secondary-vault.vault-secondary.svc.cluster.local:8200
+      path: my_app_secrets
+      version: v2
+      auth:
+        kubernetes:
+          mountPath: kubernetes-eso-auth
+          role: eso-readonly-role-my-app
+          serviceAccountRef:
+            name: eso-myapp-css-sa
+            namespace: external-secrets
+
+####Configure Vault Kubernetes Authentication
+In order for ESO to authenticate with Vault, you must enable and configure the Kubernetes auth method in Vault.
+
+Steps:
+1. Login vault UI
+2. Create Kubernetes Authentication Methods 
+3. Create role
+ example:
+ 
+![auth](docs/images/auth.png)
+
+
