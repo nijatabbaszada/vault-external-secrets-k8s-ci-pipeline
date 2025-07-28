@@ -1,5 +1,6 @@
 # Vault-External-Secrets-K8s-CI-Pipeline
 ![image](docs/images/schem.png)
+
 ![CI](https://img.shields.io/badge/ci-passing-brightgreen)
 [![Artifact Hub](https://img.shields.io/badge/artifacthub-external--secrets-blue)](https://artifacthub.io/packages/helm/external-secrets/external-secrets)
 [![OperatorHub](https://img.shields.io/badge/operatorhub-external--secrets-green)](https://operatorhub.io/operator/external-secrets)
@@ -12,8 +13,6 @@ It automates application deployment via **GitLab CI/CD**, ensuring that sensitiv
 
 ## Architecture
 
-![Architecture](./architecture.png)
-
 ### Workflow:
 1. **Vault** stores all application secrets under defined paths.
 2. **External Secrets Operator (ESO)** syncs secrets from Vault into Kubernetes as native secrets.
@@ -25,27 +24,52 @@ It automates application deployment via **GitLab CI/CD**, ensuring that sensitiv
 
 ---
 
-## Repository Structure
+## install vault 
 
-├── deployment/ # Kubernetes deployment manifests
+```bash
+helm repo add hashicorp https://helm.releases.hashicorp.com
+helm repo update
+kubectl create namespace vault-secondary
+helm install -n vault-secondary secondary-vault hashicorp/vault
+```
 
-├── my_app_code/ # Application source code
+### Login to Vault Web UI
 
-├── secrets/ # ExternalSecret CRDs (fetching from Vault)
+To access the Vault Web UI, you have two options:
 
-├── service/ # Kubernetes service definitions
+1. **Port-forward (quick local access):**
 
-├── .gitlab-ci.yml # CI/CD pipeline configuration
+   ```bash
+   kubectl -n vault-secondary port-forward svc/secondary-vault --address 0.0.0.0 8200:8200
+```
 
-├── Dockerfile # App image build configuration
+2. **Creating ingress:**
 
-└── README.md # Project documentation
+```bash
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: secondary-vault
+  namespace: vault-secondary
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: <secondary-vault.example.com>
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: secondary-vault
+            port:
+              number: 8200
+```
 
 
 
----
-
-## Deployment Steps
 1. Configure **Vault** Kubernetes auth and create a policy to allow secret reads for ESO.
 2. Deploy **External Secrets Operator (ESO)** and a `ClusterSecretStore` pointing to Vault.
 3. Push application code to GitLab and trigger the CI/CD pipeline:
