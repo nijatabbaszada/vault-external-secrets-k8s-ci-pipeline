@@ -107,7 +107,7 @@ spec:
           kubernetes.io/metadata.name: my-app
   provider:
     vault:
-      server: http://secondary-vault.vault-secondary.svc.cluster.local:8200
+      server: <http://secondary-vault.example.com>
       path: my_app_secrets
       version: v2
       auth:
