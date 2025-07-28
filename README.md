@@ -1,4 +1,8 @@
 # Vault-External-Secrets-K8s-CI-Pipeline
+![image](docs/images/schem.png)
+![CI](https://img.shields.io/badge/ci-passing-brightgreen)
+[![Artifact Hub](https://img.shields.io/badge/artifacthub-external--secrets-blue)](https://artifacthub.io/packages/helm/external-secrets/external-secrets)
+[![OperatorHub](https://img.shields.io/badge/operatorhub-external--secrets-green)](https://operatorhub.io/operator/external-secrets)
 
 ## Overview
 This repository demonstrates a full CI/CD pipeline integrating **HashiCorp Vault** with a **Kubernetes cluster** using **External Secrets Operator (ESO)**.  
@@ -24,12 +28,19 @@ It automates application deployment via **GitLab CI/CD**, ensuring that sensitiv
 ## Repository Structure
 
 ├── deployment/ # Kubernetes deployment manifests
+
 ├── my_app_code/ # Application source code
+
 ├── secrets/ # ExternalSecret CRDs (fetching from Vault)
+
 ├── service/ # Kubernetes service definitions
+
 ├── .gitlab-ci.yml # CI/CD pipeline configuration
+
 ├── Dockerfile # App image build configuration
+
 └── README.md # Project documentation
+
 
 
 ---
