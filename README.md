@@ -14,13 +14,14 @@ This repository demonstrates a full CI/CD pipeline integrating **HashiCorp Vault
 
 ### Workflow:
 1. [Install vault](#install-vault)
-2. [External Secrets Operator](#installing-external-secrets-operator-eso-on-kubernetes-with-helm)
-3. [GitLab CI/CD Pipeline](#gitlab-cicd-pipeline)
-4. [Verify](#testing--verification)
+2. [Configure Vault Authentication](#2-configure-vault-authentication)
+3. [External Secrets Operator](#installing-external-secrets-operator-eso-on-kubernetes-with-helm)
+4. [GitLab CI/CD Pipeline](#gitlab-cicd-pipeline)
+5. [Verify](#testing--verification)
 
 ---
 
-## Install vault 
+## 1. Install vault
 
 ```bash
 helm repo add hashicorp https://helm.releases.hashicorp.com
@@ -35,6 +36,7 @@ After Vault is deployed, you need to initialize and unseal it.
 These commands must be run **inside the Vault pod**.
 
 First, open a shell into the Vault pod:
+
 ```bash
 kubectl exec -it -n vault-secondary <vault-pod-name> -- /bin/sh
 export VAULT_ADDR='http://127.0.0.1:8200'
@@ -82,9 +84,10 @@ spec:
             port:
               number: 8200
 ```
+
 ---
 
-### Configure Vault Authentication
+## 2. Configure Vault Authentication
 
 ![authme](docs/images/authmethod.png)
 
@@ -110,21 +113,6 @@ path "*" {
 }
 ```
 
-### Create Secrets For Application
-
-create a secret in Vault that will be synced to Kubernetes by ESO.
-
-Example secret (`my_app_secrets`):
-
-```json
-{
-  "databaseUser": "appuser",
-  "databasePass": "S3cur3Pass!",
-  "apiKey": "my-api-key-123"
-}
-```
-
-![secrets](docs/images/vault-secrets.png)
 
 ### Create ServiceAccount for ESO
 
@@ -141,7 +129,7 @@ metadata:
 
 ---
 
-## Installing External Secrets Operator (ESO) on Kubernetes with Helm
+## 3. Installing External Secrets Operator (ESO) on Kubernetes with Helm
 
 This guide explains how to install the **External Secrets Operator (ESO)** on Kubernetes, which enables automatic syncing of secrets from providers like **HashiCorp Vault** into Kubernetes secrets.
 
@@ -198,7 +186,23 @@ kubectl apply -f my-app-css.yml
 kubectl get ClusterSecretStore vault-backend-my-app
 ```
 
-## GitLab CI/CD Pipeline
+### Create Secrets For Application
+
+create a secret in Vault that will be synced to Kubernetes by ESO.
+
+Example secret (`my_app_secrets`):
+
+```json
+{
+  "databaseUser": "appuser",
+  "databasePass": "S3cur3Pass!",
+  "apiKey": "my-api-key-123"
+}
+```
+
+![secrets](docs/images/vault-secrets.png)
+
+## 4. GitLab CI/CD Pipeline
 
 This project uses **GitLab CI/CD** to automate building, containerizing, and deploying the application (`myapp`) to Kubernetes, while ensuring that **no secrets are hardcoded**.  
 All sensitive data is securely stored in **HashiCorp Vault** and dynamically retrieved via **External Secrets Operator (ESO)**, so credentials never appear in the source code, CI variables, or manifests.
@@ -239,16 +243,20 @@ RUN >> New Pipeline
 ![gitlab](docs/images/pipeline.png)
 ---
 
-## Testing & Verification
+## 5. Testing & Verification
 
 After completing the Vault, External Secrets Operator (ESO), and CI/CD pipeline setup, verify that the system works end-to-end by performing the following checks:
+
 **Access the Application**
-   - If an Ingress is configured for `myapp`, confirm it responds via the configured domain.
-   - If using port-forward, run:
-     ```bash
-     kubectl -n my-app port-forward svc/myapp-service 5000:80
-     ```
-Access via `http://localhost:5000`
+
+- If an Ingress is configured for `myapp`, confirm it responds via the configured domain.
+- If using port-forward, run:
+
+  ```bash
+  kubectl -n my-app port-forward svc/myapp-service 5000:80
+  ```
+
+  Access via `http://localhost:5000`
 
 **Example:**
 
