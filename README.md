@@ -223,3 +223,21 @@ The pipeline consists of three stages:
  Ensure the gitlab-runner ServiceAccount (or configured SA) has sufficient RBAC to:
  Manage deployments, services, and secrets in my-app.
  Access external-secrets.io CRDs for syncing secrets.
+
+RUN >> New Pipeline
+![gitlab](docs/images/pipeline.png)
+---
+
+## Testing & Verification
+
+After completing the Vault, External Secrets Operator (ESO), and CI/CD pipeline setup, verify that the system works end-to-end by performing the following checks:
+**Access the Application**
+   - If an Ingress is configured for `myapp`, confirm it responds via the configured domain.
+   - If using port-forward, run:
+     ```bash
+     kubectl -n my-app port-forward svc/myapp-service 5000:80
+     ```
+Access via `http://localhost:5000`
+
+**Example:**
+![verify](docs/images/verify.png)
