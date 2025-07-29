@@ -6,21 +6,17 @@
 [![OperatorHub](https://img.shields.io/badge/operatorhub-external--secrets-green)](https://operatorhub.io/operator/external-secrets)
 
 ## Overview
-This repository demonstrates a full CI/CD pipeline integrating **HashiCorp Vault** with a **Kubernetes cluster** using **External Secrets Operator (ESO)**.  
-It automates application deployment via **GitLab CI/CD**, ensuring that sensitive data is securely fetched from Vault and injected into Kubernetes workloads.
+This repository demonstrates a full CI/CD pipeline integrating **HashiCorp Vault** with a **Kubernetes cluster** using **External Secrets Operator (ESO)**. It automates application deployment via **GitLab CI/CD**, ensuring that sensitive data is securely fetched from Vault and injected into Kubernetes workloads.
 
 ---
 
 ## Architecture
 
 ### Workflow:
-1. **Vault** stores all application secrets under defined paths.
-2. **External Secrets Operator (ESO)** syncs secrets from Vault into Kubernetes as native secrets.
-3. **GitLab CI/CD Pipeline**:
-   - Builds the application image.
-   - Pushes it to a container registry (using Kaniko).
-   - Deploys the app (`myapp`) and its secrets to the cluster via `kubectl`.
-4. The app retrieves credentials from the Kubernetes secrets at runtime.
+1. [Install vault](#install-vault)
+2. [External Secrets Operator](#installing-external-secrets-operator-eso-on-kubernetes-with-helm)
+3. [GitLab CI/CD Pipeline](#gitlab-cicd-pipeline)
+4. [Verify](#testing--verification)
 
 ---
 
@@ -97,6 +93,7 @@ While **Kubernetes authentication** is the most common option (allowing ESO to u
 
 Example below shows **Kubernetes Authentication** setup in the Vault UI:
 
+![auth](docs/images/auth-method.png)
 ![auth](docs/images/auth.png)
 
 ```bash
@@ -113,7 +110,7 @@ path "*" {
 }
 ```
 
-### Populate Vault with Application Secrets
+### Create Secrets For Application
 
 create a secret in Vault that will be synced to Kubernetes by ESO.
 
@@ -162,8 +159,6 @@ kubectl get all -n external-secrets
 ```
 
 ---
-
-
 
 ### Create Cluster Secret Store
 
