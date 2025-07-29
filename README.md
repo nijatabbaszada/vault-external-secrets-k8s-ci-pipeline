@@ -218,16 +218,8 @@ The pipeline consists of three stages:
 ### Key Notes
 
 >The pipeline uses Kaniko for building images in unprivileged environments.
-
->Vault and ESO handle secret injection automatically; no secrets are hardcoded.
-
->The namespace my-app must have the correct label (kubernetes.io/metadata.name: my-app) for ClusterSecretStore to function.
-
->Ensure the gitlab-runner ServiceAccount (or configured SA) has sufficient RBAC to:
-
->Manage deployments, services, and secrets in my-app.
-
->Access external-secrets.io CRDs for syncing secrets.
-
-
-
+ Vault and ESO handle secret injection automatically; no secrets are hardcoded.
+ The namespace my-app must have the correct label (kubernetes.io/metadata.name: my-app) for ClusterSecretStore to function.
+ Ensure the gitlab-runner ServiceAccount (or configured SA) has sufficient RBAC to:
+ Manage deployments, services, and secrets in my-app.
+ Access external-secrets.io CRDs for syncing secrets.
