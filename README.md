@@ -33,6 +33,15 @@ kubectl create namespace vault-secondary
 helm install -n vault-secondary secondary-vault hashicorp/vault
 ```
 
+### Initialize and Unseal Vault
+
+```bash
+export VAULT_ADDR='http://127.0.0.1:8200'
+vault operator init
+vault operator unseal     # run 3 times with different unseal keys
+vault login <root_token>
+```
+
 ### Login to Vault Web UI
 
 To access the Vault Web UI, you have two options:
@@ -68,32 +77,7 @@ spec:
               number: 8200
 ```
 
-## Installing External Secrets Operator (ESO) on Kubernetes with Helm
-
-This guide explains how to install the **External Secrets Operator (ESO)** on Kubernetes, which enables automatic syncing of secrets from providers like **HashiCorp Vault** into Kubernetes secrets.
-
----
-
-### 1. Prerequisites
-
-- A running Kubernetes cluster (v1.20+)
-- `kubectl` and `helm` installed and configured
-- Access to a secret provider (e.g., HashiCorp Vault)
-
----
-
-### 2. Add the External Secrets Helm Repository
-
-```bash
-helm repo add external-secrets https://charts.external-secrets.io
-helm repo update
-kubectl create namespace external-secrets
-helm install external-secrets external-secrets/external-secrets -n external-secrets --create-namespace
-kubectl get pods -n external-secrets
-kubectl get all -n external-secrets
-```
-
-#### Configure Vault Authentication
+### Configure Vault Authentication
 
 ![authme](docs/images/authmethod.png)
 
@@ -104,8 +88,57 @@ Example below shows **Kubernetes Authentication** setup in the Vault UI:
 
 ![auth](docs/images/auth.png)
 
+```bash
+#Define a policy to allow read-only access:
 
-#### Create Cluster Secret Store
+To allow ESO to fetch secrets from Vault, you must create a **read-only ACL policy**.  
+This policy grants `read` and `list` permissions, so ESO can access only the required secrets.
+
+Example (HCL format):
+
+```hcl
+path "*" {
+  capabilities = ["read", "list"]
+}
+```
+
+### Create ServiceAccount for ESO
+
+The `ClusterSecretStore` configuration references a ServiceAccount that ESO will use to authenticate with Vault.  
+Create the ServiceAccount in the `external-secrets` namespace:
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: eso-myapp-css-sa
+  namespace: external-secrets
+```
+
+---
+
+## Installing External Secrets Operator (ESO) on Kubernetes with Helm
+
+This guide explains how to install the **External Secrets Operator (ESO)** on Kubernetes, which enables automatic syncing of secrets from providers like **HashiCorp Vault** into Kubernetes secrets.
+
+---
+
+### Add the External Secrets Helm Repository
+
+```bash
+helm repo add external-secrets https://charts.external-secrets.io
+helm repo update
+kubectl create namespace external-secrets
+helm install external-secrets external-secrets/external-secrets -n external-secrets --create-namespace
+kubectl get pods -n external-secrets
+kubectl get all -n external-secrets
+```
+
+---
+
+
+
+### Create Cluster Secret Store
 
 The `ClusterSecretStore` (CSS) must be **manually created by the administrator**.  
 It is **not created automatically** when you define an `ExternalSecret`.  
