@@ -24,7 +24,7 @@ It automates application deployment via **GitLab CI/CD**, ensuring that sensitiv
 
 ---
 
-## install vault 
+## Install vault 
 
 ```bash
 helm repo add hashicorp https://helm.releases.hashicorp.com
@@ -68,13 +68,13 @@ spec:
               number: 8200
 ```
 
-# Installing External Secrets Operator (ESO) on Kubernetes with Helm
+## Installing External Secrets Operator (ESO) on Kubernetes with Helm
 
 This guide explains how to install the **External Secrets Operator (ESO)** on Kubernetes, which enables automatic syncing of secrets from providers like **HashiCorp Vault** into Kubernetes secrets.
 
 ---
 
-## 1. Prerequisites
+### 1. Prerequisites
 
 - A running Kubernetes cluster (v1.20+)
 - `kubectl` and `helm` installed and configured
@@ -82,7 +82,7 @@ This guide explains how to install the **External Secrets Operator (ESO)** on Ku
 
 ---
 
-## 2. Add the External Secrets Helm Repository
+### 2. Add the External Secrets Helm Repository
 
 ```bash
 helm repo add external-secrets https://charts.external-secrets.io
@@ -93,19 +93,25 @@ kubectl get pods -n external-secrets
 kubectl get all -n external-secrets
 ```
 
-#### Configure Vault Kubernetes Authentication
+#### Configure Vault Authentication
 
-In order for ESO to authenticate with Vault, you must enable and configure the Kubernetes auth method in Vault.
+![authme](docs/images/authmethod.png)
 
-Steps:
-1. Login vault UI
-2. Create Kubernetes Authentication Methods 
-3. Create role
- example:
+In order for ESO to authenticate with Vault, you must configure an authentication method.  
+While **Kubernetes authentication** is the most common option (allowing ESO to use ServiceAccounts for login), you can also use other methods supported by Vault, such as **AppRole, Token, or OIDC**, depending on your security requirements.
+
+Example below shows **Kubernetes Authentication** setup in the Vault UI:
 
 ![auth](docs/images/auth.png)
 
-### Create Cluster Secret Store
+
+#### Create Cluster Secret Store
+
+The `ClusterSecretStore` (CSS) must be **manually created by the administrator**.  
+It is **not created automatically** when you define an `ExternalSecret`.  
+Without a valid `ClusterSecretStore`, ESO cannot connect to Vault or retrieve secrets.
+
+Example:
 
 ```bash
 apiVersion: external-secrets.io/v1
