@@ -1,0 +1,49 @@
+variables:
+    container: docker
+    IMAGE: index.docker.io/your_docker_repository_name/my_app:$CI_COMMIT_SHORT_SHA
+
+stages:
+    - build
+    - image
+    - deploy
+
+
+build:
+  stage: build
+  image: node:18-alpine
+  tags:
+    - vault
+  script:
+    - cd my_app_code
+    - npm install
+    - ls -l
+  artifacts:
+    paths:
+      - my_app_code/
+    expire_in: 1 hour
+
+push-image:
+    stage: image
+    image:
+      name: mgit/base:kaniko-executor-debug-stable
+      entrypoint: [""]
+    tags:
+      - vault
+    script:
+      - mkdir -p /kaniko/.docker
+      - echo "{\"auths\":{\"index.docker.io\":{\"username\":\"your_username\",\"password\":\"$HUB_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json #set your docker password for ``$HUB_REGISTRY_PASSWORD`` variable
+      - /kaniko/executor
+        --context "${CI_PROJECT_DIR}"
+        --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+        --destination "$IMAGE"
+
+deploy-prod:
+    stage: deploy
+    image: bitnami/kubectl
+    script:
+        - echo Deploying branch $CI_COMMIT_REF_NAME
+        - kubectl create ns my-app || true
+        - sed -i "s/VERSION/$CI_COMMIT_SHORT_SHA/g" deployment/deployment.yaml
+        - kubectl apply -f secrets  && kubectl apply -f deployment  && kubectl apply -f service 
+    tags:
+      - vault
