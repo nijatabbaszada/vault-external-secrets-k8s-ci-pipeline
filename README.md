@@ -93,6 +93,18 @@ kubectl get pods -n external-secrets
 kubectl get all -n external-secrets
 ```
 
+#### Configure Vault Kubernetes Authentication
+
+In order for ESO to authenticate with Vault, you must enable and configure the Kubernetes auth method in Vault.
+
+Steps:
+1. Login vault UI
+2. Create Kubernetes Authentication Methods 
+3. Create role
+ example:
+
+![auth](docs/images/auth.png)
+
 ### Create Cluster Secret Store
 
 ```bash
@@ -119,15 +131,12 @@ spec:
             namespace: external-secrets
 ```
 
-#### Configure Vault Kubernetes Authentication
-In order for ESO to authenticate with Vault, you must enable and configure the Kubernetes auth method in Vault.
+```bash
+kubectl apply -f my-app-css.yml
+#verify
+kubectl get ClusterSecretStore vault-backend-my-app
+```
 
-Steps:
-1. Login vault UI
-2. Create Kubernetes Authentication Methods 
-3. Create role
- example:
 
-![auth](docs/images/auth.png)
 
 
