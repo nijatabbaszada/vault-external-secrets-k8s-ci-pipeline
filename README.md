@@ -10,16 +10,16 @@ This repository demonstrates a full CI/CD pipeline integrating **HashiCorp Vault
 
 ---
 
-## Architecture
+## Table of Contents
 
-### Workflow:
-1. [Install vault](#install-vault)
+1. [Install vault](#1-install-vault)
 2. [Configure Vault Authentication](#2-configure-vault-authentication)
-3. [External Secrets Operator](#installing-external-secrets-operator-eso-on-kubernetes-with-helm)
-4. [GitLab CI/CD Pipeline](#gitlab-cicd-pipeline)
-5. [Verify](#testing--verification)
+3. [Install External Secrets Operator (ESO)](#3-installing-external-secrets-operator-eso-on-kubernetes-with-helm)
+4. [GitLab CI/CD Pipeline](#4-gitlab-cicd-pipeline)
+5. [Testing & Verification](#5-testing--verification)
 
 ---
+## STEPS:
 
 ## 1. Install vault
 
