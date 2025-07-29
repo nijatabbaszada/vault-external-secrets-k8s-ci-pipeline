@@ -187,6 +187,47 @@ kubectl apply -f my-app-css.yml
 kubectl get ClusterSecretStore vault-backend-my-app
 ```
 
+## GitLab CI/CD Pipeline
+
+This project uses **GitLab CI/CD** to automate building, containerizing, and deploying the application (`myapp`) to Kubernetes, while ensuring that **no secrets are hardcoded**.  
+All sensitive data is securely stored in **HashiCorp Vault** and dynamically retrieved via **External Secrets Operator (ESO)**, so credentials never appear in the source code, CI variables, or manifests.
+
+
+### Pipeline Stages Overview
+
+The pipeline consists of three stages:
+
+1. **Build**  
+   - Uses a Node.js 18 Alpine image.  
+   - Installs project dependencies.  
+   - Stores built application artifacts for later stages.
+
+2. **Push Image**  
+   - Uses **Kaniko** to build and push a Docker image to the configured container registry.  
+   - Handles Docker authentication dynamically using environment variables (`HUB_REGISTRY_PASSWORD`).  
+   - No privileged mode is required (Kaniko runs in userspace).
+
+3. **Deploy to Kubernetes**  
+   - Uses a lightweight `kubectl` image to deploy the app into the `my-app` namespace.  
+   - Creates the namespace if it doesn’t exist.  
+   - Replaces the application image tag in the deployment YAML with the current Git commit SHA.  
+   - Applies secrets (managed by ESO), deployment, and service YAMLs.
+
+---
+
+### Key Notes
+
+>The pipeline uses Kaniko for building images in unprivileged environments.
+
+>Vault and ESO handle secret injection automatically; no secrets are hardcoded.
+
+>The namespace my-app must have the correct label (kubernetes.io/metadata.name: my-app) for ClusterSecretStore to function.
+
+>Ensure the gitlab-runner ServiceAccount (or configured SA) has sufficient RBAC to:
+
+>Manage deployments, services, and secrets in my-app.
+
+>Access external-secrets.io CRDs for syncing secrets.
 
 
 
