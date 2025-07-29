@@ -113,6 +113,22 @@ path "*" {
 }
 ```
 
+### Populate Vault with Application Secrets
+
+create a secret in Vault that will be synced to Kubernetes by ESO.
+
+Example secret (`my_app_secrets`):
+
+```json
+{
+  "databaseUser": "appuser",
+  "databasePass": "S3cur3Pass!",
+  "apiKey": "my-api-key-123"
+}
+```
+
+![secrets](docs/images/vault-secrets.png)
+
 ### Create ServiceAccount for ESO
 
 The `ClusterSecretStore` configuration references a ServiceAccount that ESO will use to authenticate with Vault.  
@@ -240,4 +256,5 @@ After completing the Vault, External Secrets Operator (ESO), and CI/CD pipeline 
 Access via `http://localhost:5000`
 
 **Example:**
+
 ![verify](docs/images/verify.png)
