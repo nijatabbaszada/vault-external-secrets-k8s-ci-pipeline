@@ -19,7 +19,8 @@ This repository demonstrates a full CI/CD pipeline integrating **HashiCorp Vault
 5. [Testing & Verification](#5-testing--verification)
 
 ---
-## STEPS:
+## STEPS
+## STEPS
 
 ## 1. Install vault
 
@@ -227,6 +228,8 @@ The pipeline consists of three stages:
    - Creates the namespace if it doesn’t exist.  
    - Replaces the application image tag in the deployment YAML with the current Git commit SHA.  
    - Applies secrets (managed by ESO), deployment, and service YAMLs.
+
+The GitLab CI/CD pipeline configuration and supporting files can be found in the [application-deploy directory](application-deploy/).
 
 ---
 
