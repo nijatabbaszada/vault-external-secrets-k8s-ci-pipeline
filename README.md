@@ -19,10 +19,8 @@ This repository demonstrates a full CI/CD pipeline integrating **HashiCorp Vault
 5. [Testing & Verification](#5-testing--verification)
 
 ---
-## STEPS
-## STEPS
 
-## 1. Install vault
+## Step 1. Install vault
 
 ```bash
 helm repo add hashicorp https://helm.releases.hashicorp.com
@@ -88,7 +86,7 @@ spec:
 
 ---
 
-## 2. Configure Vault Authentication
+## Step 2. Configure Vault Authentication
 
 ![authme](docs/images/authmethod.png)
 
@@ -130,7 +128,7 @@ metadata:
 
 ---
 
-## 3. Installing External Secrets Operator (ESO) on Kubernetes with Helm
+## Step 3. Installing External Secrets Operator (ESO) on Kubernetes with Helm
 
 This guide explains how to install the **External Secrets Operator (ESO)** on Kubernetes, which enables automatic syncing of secrets from providers like **HashiCorp Vault** into Kubernetes secrets.
 
@@ -208,7 +206,6 @@ Example secret (`my_app_secrets`):
 This project uses **GitLab CI/CD** to automate building, containerizing, and deploying the application (`myapp`) to Kubernetes, while ensuring that **no secrets are hardcoded**.  
 All sensitive data is securely stored in **HashiCorp Vault** and dynamically retrieved via **External Secrets Operator (ESO)**, so credentials never appear in the source code, CI variables, or manifests.
 
-
 ### Pipeline Stages Overview
 
 The pipeline consists of three stages:
@@ -246,7 +243,7 @@ RUN >> New Pipeline
 ![gitlab](docs/images/pipeline.png)
 ---
 
-## 5. Testing & Verification
+## Step 5. Testing & Verification
 
 After completing the Vault, External Secrets Operator (ESO), and CI/CD pipeline setup, verify that the system works end-to-end by performing the following checks:
 
