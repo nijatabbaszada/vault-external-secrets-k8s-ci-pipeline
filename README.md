@@ -55,6 +55,8 @@ To access the Vault Web UI, you have two options:
 kubectl -n vault-secondary port-forward svc/secondary-vault --address 0.0.0.0 8200:8200
 ```
 
+OR
+
 2. **Creating ingress:**
 
 ```bash
@@ -88,11 +90,10 @@ Vault can be unsealed either **via the Web UI** or **via the CLI inside the Vaul
 
 ---
 
+
 #### 1. Initialize & Unseal via Web UI
 
 1. Access the Vault Web UI:
-   - Using `kubectl port-forward`: `http://localhost:8200`
-   - Or via Ingress (e.g., `http://secondary-vault.example.com`)
 2. Log in with the `root_token` (once initialized).
 3. Follow the UI prompts:
    - Click **“Initialize Vault”**.
@@ -153,7 +154,6 @@ path "*" {
   capabilities = ["read", "list"]
 }
 ```
-
 
 ### Create ServiceAccount for ESO
 
