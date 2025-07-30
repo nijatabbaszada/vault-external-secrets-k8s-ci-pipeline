@@ -20,7 +20,7 @@ This repository demonstrates a full CI/CD pipeline integrating **HashiCorp Vault
 
 ---
 
-## Step 1. Install vault
+## STEP 1. Install vault
 
 ```bash
 helm repo add hashicorp https://helm.releases.hashicorp.com
@@ -31,8 +31,7 @@ helm install -n vault-secondary secondary-vault hashicorp/vault
 
 ### Initialize and Unseal Vault
 
-After Vault is deployed, you need to initialize and unseal it.  
-These commands must be run **inside the Vault pod**.
+After Vault is deployed, you need to initialize and unseal it. These commands must be run **inside the Vault pod**.
 
 First, open a shell into the Vault pod:
 
@@ -43,9 +42,6 @@ vault operator init
 vault operator unseal     # run 3 times with different unseal keys
 vault login <root_token>
 ```
-
->Note:
-Use kubectl get pods -n vault-secondary to find the correct `vault-pod-name` (usually secondary-vault-0 if using a StatefulSet).
 
 ---
 
@@ -84,9 +80,55 @@ spec:
               number: 8200
 ```
 
+### Initialize and Unseal Vault
+
+After accessing Vault (via Web UI or port-forward), you must **initialize and unseal** it before it can store or serve secrets.
+
+Vault can be unsealed either **via the Web UI** or **via the CLI inside the Vault pod**.
+
 ---
 
-## Step 2. Configure Vault Authentication
+#### 1. Initialize & Unseal via Web UI
+
+1. Access the Vault Web UI:
+   - Using `kubectl port-forward`: `http://localhost:8200`
+   - Or via Ingress (e.g., `http://secondary-vault.example.com`)
+2. Log in with the `root_token` (once initialized).
+3. Follow the UI prompts:
+   - Click **“Initialize Vault”**.
+   - Generate the unseal keys.
+   - Enter the unseal keys (at least 3 of 5 by default) to unseal Vault.
+
+---
+
+#### 2. Initialize & Unseal via CLI (inside the Vault pod)
+
+If you prefer using the terminal, run:
+
+```bash
+# Access the Vault pod
+kubectl exec -it -n vault-secondary secondary-vault-0 -- /bin/sh
+
+# Set Vault address
+export VAULT_ADDR='http://127.0.0.1:8200'
+
+# Initialize Vault (only once, will output unseal keys and root token)
+vault operator init
+
+# Unseal Vault (run with 3 different keys)
+vault operator unseal <unseal_key_1>
+vault operator unseal <unseal_key_2>
+vault operator unseal <unseal_key_3>
+
+# Login using the root token
+vault login <root_token>
+```
+
+>Important: Save the unseal keys and root token securely. They are needed for future unseals and administration.
+
+---
+
+## STEP 2. Configure Vault Authentication
 
 ![authme](docs/images/authmethod.png)
 
@@ -128,13 +170,9 @@ metadata:
 
 ---
 
-## Step 3. Installing External Secrets Operator (ESO) on Kubernetes with Helm
+## STEP 3. Installing External Secrets Operator (ESO) on Kubernetes with Helm
 
 This guide explains how to install the **External Secrets Operator (ESO)** on Kubernetes, which enables automatic syncing of secrets from providers like **HashiCorp Vault** into Kubernetes secrets.
-
----
-
-### Add the External Secrets Helm Repository
 
 ```bash
 helm repo add external-secrets https://charts.external-secrets.io
@@ -149,9 +187,7 @@ kubectl get all -n external-secrets
 
 ### Create Cluster Secret Store
 
-The `ClusterSecretStore` (CSS) must be **manually created by the administrator**.  
-It is **not created automatically** when you define an `ExternalSecret`.  
-Without a valid `ClusterSecretStore`, ESO cannot connect to Vault or retrieve secrets.
+The `ClusterSecretStore` (CSS) must be **manually created by the administrator**. It is **not created automatically** when you define an `ExternalSecret`. Without a valid `ClusterSecretStore`, ESO cannot connect to Vault or retrieve secrets.
 
 Example:
 
@@ -167,16 +203,16 @@ spec:
           kubernetes.io/metadata.name: my-app
   provider:
     vault:
-      server: <http://secondary-vault.example.com>
-      path: my_app_secrets
-      version: v2
+      server: <http://secondary-vault.example.com>  # Vault API endpoint ESO will connect to
+      path: my_app_secrets                         # Base path in Vault where secrets are stored (e.g., KV v2 engine)
+      version: v2                                  # Version of the Vault KV secrets engine (v1 or v2)
       auth:
         kubernetes:
-          mountPath: kubernetes-eso-auth
-          role: eso-readonly-role-my-app
+          mountPath: kubernetes-eso-auth           # Path in Vault where Kubernetes auth method is enabled
+          role: eso-readonly-role-my-app           # Vault role that ESO will assume (mapped to policy with read access)
           serviceAccountRef:
-            name: eso-myapp-css-sa
-            namespace: external-secrets
+            name: eso-myapp-css-sa                 # Kubernetes ServiceAccount ESO will use to authenticate to Vault
+            namespace: external-secrets            # Namespace where the ServiceAccount exists
 ```
 
 ```bash
@@ -201,49 +237,17 @@ Example secret (`my_app_secrets`):
 
 ![secrets](docs/images/vault-secrets.png)
 
-## 4. GitLab CI/CD Pipeline
+## STEP 4. GitLab CI/CD Pipeline
 
-This project uses **GitLab CI/CD** to automate building, containerizing, and deploying the application (`myapp`) to Kubernetes, while ensuring that **no secrets are hardcoded**.  
-All sensitive data is securely stored in **HashiCorp Vault** and dynamically retrieved via **External Secrets Operator (ESO)**, so credentials never appear in the source code, CI variables, or manifests.
+This project uses **GitLab CI/CD** to automate building, containerizing, and deploying the application (`myapp`) to Kubernetes, while ensuring that **no secrets are hardcoded**. All sensitive data is securely stored in **HashiCorp Vault** and dynamically retrieved via **External Secrets Operator (ESO)**, so credentials never appear in the source code, CI variables, or manifests.
 
-### Pipeline Stages Overview
+**Build > Push Image > Deploy**
 
-The pipeline consists of three stages:
-
-1. **Build**  
-   - Uses a Node.js 18 Alpine image.  
-   - Installs project dependencies.  
-   - Stores built application artifacts for later stages.
-
-2. **Push Image**  
-   - Uses **Kaniko** to build and push a Docker image to the configured container registry.  
-   - Handles Docker authentication dynamically using environment variables (`HUB_REGISTRY_PASSWORD`).  
-   - No privileged mode is required (Kaniko runs in userspace).
-
-3. **Deploy to Kubernetes**  
-   - Uses a lightweight `kubectl` image to deploy the app into the `my-app` namespace.  
-   - Creates the namespace if it doesn’t exist.  
-   - Replaces the application image tag in the deployment YAML with the current Git commit SHA.  
-   - Applies secrets (managed by ESO), deployment, and service YAMLs.
-
-The GitLab CI/CD pipeline configuration and supporting files can be found in the [application-deploy directory](application-deploy/).
-
----
-
-### Key Notes
-
->The pipeline uses Kaniko for building images in unprivileged environments.
- Vault and ESO handle secret injection automatically; no secrets are hardcoded.
- The namespace my-app must have the correct label (kubernetes.io/metadata.name: my-app) for ClusterSecretStore to function.
- Ensure the gitlab-runner ServiceAccount (or configured SA) has sufficient RBAC to:
- Manage deployments, services, and secrets in my-app.
- Access external-secrets.io CRDs for syncing secrets.
-
-RUN >> New Pipeline
 ![gitlab](docs/images/pipeline.png)
+
 ---
 
-## Step 5. Testing & Verification
+## STEP 5. Testing & Verification
 
 After completing the Vault, External Secrets Operator (ESO), and CI/CD pipeline setup, verify that the system works end-to-end by performing the following checks:
 
