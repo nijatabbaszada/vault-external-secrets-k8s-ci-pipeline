@@ -1,6 +1,3 @@
-NIcat DOC
-
-
 # Vault-External-Secrets-K8s-CI-Pipeline
 ![image](docs/images/schem.png)
 
