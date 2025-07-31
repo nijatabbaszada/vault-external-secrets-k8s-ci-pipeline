@@ -229,7 +229,7 @@ Example secret (`my_app_secrets`):
 
 This project uses **GitLab CI/CD** to automate building, containerizing, and deploying the application (`myapp`) to Kubernetes, while ensuring that **no secrets are hardcoded**. All sensitive data is securely stored in **HashiCorp Vault** and dynamically retrieved via **External Secrets Operator (ESO)**, so credentials never appear in the source code, CI variables, or manifests.
 
-**Build > Push Image > Deploy**
+**RUN >> Pipeline**
 
 ![gitlab](assets/images/pipeline.png)
 
