@@ -1,0 +1,22 @@
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: vault-backend-my-app
+spec:
+  conditions:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: my-app 
+  provider:
+    vault:
+      server: http://secondary-vault.example.com
+      path: my_app_secrets
+      version: v2
+      auth:
+        kubernetes:
+          mountPath: kubernetes-eso-auth
+          role: eso-readonly-role-my-app
+          serviceAccountRef:
+            name: eso-myapp-css-sa
+            namespace: external-secrets
+
