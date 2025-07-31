@@ -1,6 +1,6 @@
 # Vault-External-Secrets-K8s-CI-Pipeline
 <p align="center">
-    <img src="docs/images/ci-pip.png" width="100%" align="center" alt="external-secrets">
+    <img src="assets/images/ci-pip.png" width="100%" align="center" alt="external-secrets">
 </p>
 
 ![CI](https://img.shields.io/badge/ci-passing-brightgreen)
@@ -133,15 +133,15 @@ vault login <root_token>
 
 ## STEP 2. Configure Vault Authentication
 
-![authme](docs/images/authmethod.png)
+![authme](assets/images/authmethod.png)
 
 In order for ESO to authenticate with Vault, you must configure an authentication method.  
 While **Kubernetes authentication** is the most common option (allowing ESO to use ServiceAccounts for login), you can also use other methods supported by Vault, such as **AppRole, Token, or OIDC**, depending on your security requirements.
 
 Example below shows **Kubernetes Authentication** setup in the Vault UI:
 
-![auth](docs/images/auth-method.png)
-![auth](docs/images/auth.png)
+![auth](assets/images/auth-method.png)
+![auth](assets/images/auth.png)
 
 ```bash
 #Define a policy to allow read-only access:
@@ -237,7 +237,7 @@ Example secret (`my_app_secrets`):
 }
 ```
 
-![secrets](docs/images/vault-secrets.png)
+![secrets](assets/images/vault-secrets.png)
 
 ## STEP 4. GitLab CI/CD Pipeline
 
@@ -245,7 +245,7 @@ This project uses **GitLab CI/CD** to automate building, containerizing, and dep
 
 **Build > Push Image > Deploy**
 
-![gitlab](docs/images/pipeline.png)
+![gitlab](assets/images/pipeline.png)
 
 ---
 
@@ -266,4 +266,4 @@ After completing the Vault, External Secrets Operator (ESO), and CI/CD pipeline 
 
 **Example:**
 
-![verify](docs/images/verify.png)
+![verify](assets/images/verify.png)
