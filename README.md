@@ -31,20 +31,6 @@ kubectl create namespace vault-secondary
 helm install -n vault-secondary secondary-vault hashicorp/vault
 ```
 
-### Initialize and Unseal Vault
-
-After Vault is deployed, you need to initialize and unseal it. These commands must be run **inside the Vault pod**.
-
-First, open a shell into the Vault pod:
-
-```bash
-kubectl exec -it -n vault-secondary <vault-pod-name> -- /bin/sh
-export VAULT_ADDR='http://127.0.0.1:8200'
-vault operator init
-vault operator unseal     # run 3 times with different unseal keys
-vault login <root_token>
-```
-
 ---
 
 ### Login to Vault Web UI
