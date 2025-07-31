@@ -1,6 +1,6 @@
 # Vault-External-Secrets-K8s-CI-Pipeline
 <p align="center">
-    <img src="docs/images/schem.png" width="90%" align="center" alt="external-secrets">
+    <img src="docs/images/ci.png" width="100%" align="center" alt="external-secrets">
 </p>
 <!-- ![image](docs/images/schem.png) -->
 
