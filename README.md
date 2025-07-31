@@ -1,5 +1,8 @@
 # Vault-External-Secrets-K8s-CI-Pipeline
-![image](docs/images/schem.png)
+<p align="center">
+    <img src="docs/images/schem.png" width="90%" align="center" alt="external-secrets">
+</p>
+<!-- ![image](docs/images/schem.png) -->
 
 ![CI](https://img.shields.io/badge/ci-passing-brightgreen)
 [![Artifact Hub](https://img.shields.io/badge/artifacthub-external--secrets-blue)](https://artifacthub.io/packages/helm/external-secrets/external-secrets)
